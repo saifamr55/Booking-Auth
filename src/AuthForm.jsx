@@ -116,11 +116,11 @@ const AuthForm = () => {
         <>
             <div className="auth-container">
                 <div className="auth-card">
-                    <h2>{isLogin ? 'Login' : 'Create Account'}</h2>
+                    <h2>{isLogin ? 'Login' : 'Sign UP'}</h2>
                     <p className="subtitle">
                         {isLogin
                             ? 'Welcome back!Please enter your details to login'
-                            : 'Fill in the information below to get started'}
+                            : 'Create your account to get started'}
                     </p>
 
                     <form onSubmit={handleSubmit} noValidate>
@@ -229,7 +229,7 @@ const AuthForm = () => {
                         ) : (
                             <p>
                                 Already have an account?{' '}
-                                <span onClick={() => { setIsLogin(true); setErrors({}); }}>Sign In</span>
+                                <span onClick={() => { setIsLogin(true); setErrors({}); }}>Login</span>
                             </p>
                         )}
                     </div>
