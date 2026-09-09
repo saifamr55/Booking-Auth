@@ -3,14 +3,14 @@ import './OtpModal.css';
 
 const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
     const [otp, setOtp] = useState(['', '', '', '']);
-    const [timer, setTimer] = useState(300);
+    const [timer, setTimer] = useState(120);
     const [error, setError] = useState('');
 
     // إعادة ضبط الحالة   
     useEffect(() => {
         if (isOpen) {
             setOtp(['', '', '', '']);
-            setTimer(300);
+            setTimer(120);
             setError('');
         }
     }, [isOpen]);
@@ -118,7 +118,7 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
                             className="resend-btn"
                             disabled={timer > 0}
                             onClick={() => {
-                                setTimer(300);
+                                setTimer(120);
                                 setOtp(['', '', '', '']);
                                 setError('');
                                 if (onResend) onResend();

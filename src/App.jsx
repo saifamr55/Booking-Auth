@@ -1,4 +1,4 @@
-import AuthForm from './AuthForm';
+import AuthForm from './pages/Auth/AuthForm';
 
 function App() {
     return (

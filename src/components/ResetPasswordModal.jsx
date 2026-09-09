@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './OtpModal.css';
+import './ResetPasswordModal.css';
 
 const ResetPasswordModal = ({ isOpen, email, onClose, onSubmitNewPassword }) => {
     const [newPassword, setNewPassword] = useState('');

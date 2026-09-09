@@ -68,28 +68,6 @@
     border-color: #111;
 }
 
-.remember-me-group {
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-}
-
-.checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: #555;
-    cursor: pointer;
-    user-select: none;
-}
-
-.checkbox-container input {
-    width: 16px;
-    height: 16px;
-    cursor: pointer;
-}
-
 .submit-btn {
     width: 100%;
     padding: 12px;
@@ -104,7 +82,7 @@
 }
 
 .submit-btn:hover {
-    background-color: #333;
+    background-color: #e67e22;
 }
 
 .toggle-text {
@@ -120,7 +98,6 @@
     cursor: pointer;
 }
 
-
 .input-error {
     border-color: #e74c3c !important;
     background-color: #fdf2f2;
@@ -134,7 +111,6 @@
     text-align: right;
     direction: rtl;
 }
-
 
 @media (max-width: 576px) {
     .auth-container {

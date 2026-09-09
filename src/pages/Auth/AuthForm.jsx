@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import './AuthForm.css';
-import OtpModal from './OtpModal';
-import ResetPasswordModal from './ResetPasswordModal';
-
+import OtpModal from '../../components/OtpModal';
+import ResetPasswordModal from '../../components/ResetPasswordModal';
+import { authService } from '../../services/authService';
+import { validateAuthForm } from '../utils/validation';
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [rememberMe, setRememberMe] = useState(false);
     const [isOtpOpen, setIsOtpOpen] = useState(false);
     const [isResetPassOpen, setIsResetPassOpen] = useState(false);
-    const [otpFlow, setOtpFlow] = useState('signup');
+    const [otpFlow, setOtpFlow] = useState('signup'); // 'signup' or 'forgot_password'
+    const [tempOtp, setTempOtp] = useState(''); // حفظ كود الـ OTP لاستخدامه في تغيير الباسورد
+    const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         fullName: '',
@@ -18,13 +21,11 @@ const AuthForm = () => {
         confirmPassword: ''
     });
 
-    //  تخزين الرسائل لكل حقل
     const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        // phone is 11 digit
         if (name === 'phone') {
             const numericValue = value.replace(/\D/g, '');
             if (numericValue.length <= 11) {
@@ -34,82 +35,120 @@ const AuthForm = () => {
         }
 
         setFormData({ ...formData, [name]: value });
-        // delete message error 
         if (errors[name]) {
             setErrors({ ...errors, [name]: '' });
         }
     };
-    // التحقق من المدخلات
-    const validateForm = () => {
-        let newErrors = {};
-
-        //التحقق من البريد الإلكتروني
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!formData.email) {
-            newErrors.email = 'This field is required';
-        } else if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address.';
-        }
-
-        //التحقق من كلمة السر
-        if (!formData.password) {
-            newErrors.password = 'This field is required';
-        } else if (!isLogin) {
-
-            const strongPasswordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
-            if (!strongPasswordRegex.test(formData.password)) {
-                newErrors.password = 'The password must be at least 8 characters long (letters, numbers, and special characters like @#$)';
-            }
-        }
 
 
-        if (!isLogin) {
-            if (!formData.fullName) {
-                newErrors.fullName = 'Full name is required.';
-            }
-
-            // التحقق من رقم الهاتف (11 رقم)
-            if (!formData.phone) {
-                newErrors.phone = 'Phone number is required.';
-            } else if (formData.phone.length !== 11) {
-                newErrors.phone = 'The phone number must consist of exactly 11 digits';
-            }
-
-            // التحقق من تطابق كلمة السر
-            if (formData.password !== formData.confirmPassword) {
-                newErrors.confirmPassword = 'The passwords do not match';
-            }
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        const validationErrors = validateAuthForm(formData, isLogin);
+        setErrors(validationErrors);
 
-        if (isLogin) {
-            console.log('Login Payload:', {
-                email: formData.email,
-                password: formData.password,
-                rememberMe
-            });
-        } else {
-            setOtpFlow('signup');
-            setIsOtpOpen(true);
+        if (Object.keys(validationErrors).length > 0) return;
+
+        setLoading(true);
+
+        try {
+            if (isLogin) {
+                await authService.login({
+                    email: formData.email,
+                    password: formData.password
+                });
+                alert('Login Successful!');
+            } else {
+                setOtpFlow('signup');
+                // طلب إرسال OTP أولاً
+                await authService.sendSignUpOtp(formData.email);
+                setIsOtpOpen(true);
+            }
+        } catch (err) {
+            const serverMsg = err.response?.data?.message || 'Something went wrong. Please try again.';
+            setErrors((prev) => ({ ...prev, email: serverMsg }));
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleForgotPasswordClick = () => {
+    const handleForgotPasswordClick = async () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!formData.email || !emailRegex.test(formData.email)) {
             setErrors({ ...errors, email: 'Please enter a valid email address first to send the recovery code.' });
             return;
         }
-        setOtpFlow('forgot_password');
-        setIsOtpOpen(true);
+
+        setLoading(true);
+        try {
+            await authService.forgotPassword(formData.email);
+            setOtpFlow('forgot_password');
+            setIsOtpOpen(true);
+        } catch (err) {
+            const serverMsg = err.response?.data?.message || 'Failed to send recovery code.';
+            setErrors((prev) => ({ ...prev, email: serverMsg }));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // عند الضغط على Verify في الـ OTP Modal
+    const handleVerifyOtpSubmit = async (otpCode) => {
+        setLoading(true);
+        try {
+            if (otpFlow === 'signup') {
+                // إكمال إنشاء الحساب بـ completeSignUp
+                await authService.completeSignUp({
+                    name: formData.fullName,
+                    email: formData.email,
+                    password: formData.password,
+                    phone: formData.phone,
+                    otp: otpCode
+                });
+                setIsOtpOpen(false);
+                alert('Account created and verified successfully!');
+                setIsLogin(true);
+            } else {
+                // في حالة Forgot Password نحفظ الـ OTP لنرسله مع الباسورد الجديد
+                setTempOtp(otpCode);
+                setIsOtpOpen(false);
+                setIsResetPassOpen(true);
+            }
+        } catch (err) {
+            alert(err.response?.data?.message || 'Verification failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendOtpCall = async () => {
+        try {
+            if (otpFlow === 'signup') {
+                await authService.sendSignUpOtp(formData.email);
+            } else {
+                await authService.forgotPassword(formData.email);
+            }
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to resend code');
+        }
+    };
+
+    const handleResetPasswordSubmit = async (newPassword) => {
+        setLoading(true);
+        try {
+            await authService.resetPassword({
+                email: formData.email,
+                otp: tempOtp,
+                newPassword
+            });
+            setIsResetPassOpen(false);
+            setIsLogin(true);
+            alert('Password reset successfully!');
+        } catch (err) {
+            alert(err.response?.data?.message || 'Failed to reset password');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -119,7 +158,7 @@ const AuthForm = () => {
                     <h2>{isLogin ? 'Login' : 'Sign UP'}</h2>
                     <p className="subtitle">
                         {isLogin
-                            ? 'Welcome back!Please enter your details to login'
+                            ? 'Welcome back !Please enter your details to login'
                             : 'Create your account to get started'}
                     </p>
 
@@ -202,21 +241,10 @@ const AuthForm = () => {
                             </div>
                         )}
 
-                        {isLogin && (
-                            <div className="remember-me-group">
-                                <label className="checkbox-container">
-                                    <input
-                                        type="checkbox"
-                                        checked={rememberMe}
-                                        onChange={(e) => setRememberMe(e.target.checked)}
-                                    />
-                                    Remember me
-                                </label>
-                            </div>
-                        )}
 
-                        <button type="submit" className="submit-btn">
-                            {isLogin ? 'Sign In' : 'Sign Up'}
+
+                        <button type="submit" className="submit-btn" disabled={loading}>
+                            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
                         </button>
                     </form>
 
@@ -239,20 +267,15 @@ const AuthForm = () => {
                     isOpen={isOtpOpen}
                     email={formData.email}
                     onClose={() => setIsOtpOpen(false)}
-                    onVerify={() => {
-                        setIsOtpOpen(false);
-                        if (otpFlow === 'forgot_password') setIsResetPassOpen(true);
-                    }}
+                    onVerify={handleVerifyOtpSubmit}
+                    onResend={handleResendOtpCall}
                 />
 
                 <ResetPasswordModal
                     isOpen={isResetPassOpen}
                     email={formData.email}
                     onClose={() => setIsResetPassOpen(false)}
-                    onSubmitNewPassword={() => {
-                        setIsResetPassOpen(false);
-                        setIsLogin(true);
-                    }}
+                    onSubmitNewPassword={handleResetPasswordSubmit}
                 />
             </div>
         </>
