@@ -6,7 +6,7 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
     const [timer, setTimer] = useState(120);
     const [error, setError] = useState('');
 
-    // إعادة ضبط الحالة   
+    //Reset status
     useEffect(() => {
         if (isOpen) {
             setOtp(['', '', '', '']);
@@ -15,7 +15,7 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
         }
     }, [isOpen]);
 
-    // تشغيل العداد 
+    //  Start counter 
     useEffect(() => {
         let interval = null;
         if (isOpen && timer > 0) {
@@ -30,7 +30,7 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
 
     if (!isOpen) return null;
 
-    // التنقل  بين خانات الأرقام عند الكتابة
+    //Navigating between digit fields while typing
     const handleChange = (element, index) => {
         if (isNaN(element.value)) return false;
 
@@ -39,13 +39,12 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
         setOtp(newOtp);
         setError('');
 
-        // الانتقال للخانة التالية تلقائياً
+        // Automatically move to the next field
         if (element.value !== '' && element.nextSibling) {
             element.nextSibling.focus();
         }
     };
-
-    // التعامل مع زر التراجع 
+    //Handling the back button
     const handleKeyDown = (e, index) => {
         if (e.key === 'Backspace' && !otp[index] && e.target.previousSibling) {
             e.target.previousSibling.focus();
@@ -76,61 +75,61 @@ const OtpModal = ({ isOpen, email, onClose, onVerify, onResend }) => {
     };
 
     return (
-        <>
-            <div className="modal-overlay">
-                <div className="modal-card">
-                    <h3>Verify Your Email</h3>
-                    <p>We've sent a 4-digit code to: <strong>{email}</strong></p>
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="otp-inputs">
-                            {otp.map((data, index) => (
-                                <input
-                                    key={index}
-                                    type="text"
-                                    maxLength="1"
-                                    value={data}
-                                    onChange={(e) => handleChange(e.target, index)}
-                                    onKeyDown={(e) => handleKeyDown(e, index)}
-                                    onFocus={(e) => e.target.select()}
-                                    className={error ? 'input-error' : ''}
-                                />
-                            ))}
-                        </div>
+        <div className="modal-overlay">
+            <div className="modal-card">
+                <h3>Verify Your Email</h3>
+                <p>We've sent a 4-digit code to: <strong>{email}</strong></p>
 
-                        {/* عرض رسائل الأخطاء إن وجدت */}
-                        {error && <span className="error-message modal-error">{error}</span>}
-
-                        <div className="timer-section">
-                            {timer > 0 ? (
-                                <p>Code expires in: <span>{formatTime()}</span></p>
-                            ) : (
-                                <p className="expired">Code expired!</p>
-                            )}
-                        </div>
-
-                        <button type="submit" className="verify-btn">Verify Code</button>
-                    </form>
-
-                    <div className="modal-actions">
-                        <button
-                            type="button"
-                            className="resend-btn"
-                            disabled={timer > 0}
-                            onClick={() => {
-                                setTimer(120);
-                                setOtp(['', '', '', '']);
-                                setError('');
-                                if (onResend) onResend();
-                            }}
-                        >
-                            Resend Code
-                        </button>
-                        <button type="button" className="close-btn" onClick={onClose}>Cancel</button>
+                <form onSubmit={handleSubmit}>
+                    <div className="otp-inputs">
+                        {otp.map((data, index) => (
+                            <input
+                                key={index}
+                                type="text"
+                                maxLength="1"
+                                value={data}
+                                onChange={(e) => handleChange(e.target, index)}
+                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                onFocus={(e) => e.target.select()}
+                                className={error ? 'input-error' : ''}
+                            />
+                        ))}
                     </div>
+
+                    {/* عرض رسائل الأخطاء إن وجدت */}
+                    {error && <span className="error-message modal-error">{error}</span>}
+
+                    <div className="timer-section">
+                        {timer > 0 ? (
+                            <p>Code expires in: <span>{formatTime()}</span></p>
+                        ) : (
+                            <p className="expired">Code expired!</p>
+                        )}
+                    </div>
+
+                    <button type="submit" className="verify-btn">Verify Code</button>
+                </form>
+
+                <div className="modal-actions">
+                    <button
+                        type="button"
+                        className="resend-btn"
+                        disabled={timer > 0}
+                        onClick={() => {
+                            setTimer(120);
+                            setOtp(['', '', '', '']);
+                            setError('');
+                            if (onResend) onResend();
+                        }}
+                    >
+                        Resend Code
+                    </button>
+                    <button type="button" className="close-btn" onClick={onClose}>Cancel</button>
                 </div>
             </div>
-        </>
+        </div>
+
     );
 };
 

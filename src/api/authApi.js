@@ -1,11 +1,11 @@
 import axiosInstance from './axiosInstance';
 
-//  انشاء Otp
+//  create Otp
 export const sendSignUpOtpApi = (data) => {
     return axiosInstance.post('/auth/send-signup-otp', data);
 };
 
-//  إكمال إنشاء الحساب 
+//Complete account creation 
 export const completeSignUpApi = (userData) => {
     return axiosInstance.post('/auth/complete-signup', userData);
 };

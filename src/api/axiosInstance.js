@@ -8,7 +8,7 @@ const axiosInstance = axios.create({
 });
 
 
-// إرسال الـ accessToken مع كل طلب
+// send accessToken  
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('accessToken');
@@ -20,7 +20,7 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// تجديد التوكن تلقائياً في حال انتهائه (401 Unauthorized)
+// Automatically renew the token upon expiration.
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {

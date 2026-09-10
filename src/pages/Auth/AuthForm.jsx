@@ -6,11 +6,10 @@ import { authService } from '../../services/authService';
 import { validateAuthForm } from '../utils/validation';
 const AuthForm = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [rememberMe, setRememberMe] = useState(false);
     const [isOtpOpen, setIsOtpOpen] = useState(false);
     const [isResetPassOpen, setIsResetPassOpen] = useState(false);
-    const [otpFlow, setOtpFlow] = useState('signup'); // 'signup' or 'forgot_password'
-    const [tempOtp, setTempOtp] = useState(''); // حفظ كود الـ OTP لاستخدامه في تغيير الباسورد
+    const [otpFlow, setOtpFlow] = useState('signup');
+    const [tempOtp, setTempOtp] = useState('');
     const [loading, setLoading] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -60,7 +59,7 @@ const AuthForm = () => {
                 alert('Login Successful!');
             } else {
                 setOtpFlow('signup');
-                // طلب إرسال OTP أولاً
+                //  send OTP
                 await authService.sendSignUpOtp(formData.email);
                 setIsOtpOpen(true);
             }
@@ -92,12 +91,12 @@ const AuthForm = () => {
         }
     };
 
-    // عند الضغط على Verify في الـ OTP Modal
+    // click  Verify  OTP Modal
     const handleVerifyOtpSubmit = async (otpCode) => {
         setLoading(true);
         try {
             if (otpFlow === 'signup') {
-                // إكمال إنشاء الحساب بـ completeSignUp
+                //  completeSignUp
                 await authService.completeSignUp({
                     name: formData.fullName,
                     email: formData.email,
@@ -109,7 +108,7 @@ const AuthForm = () => {
                 alert('Account created and verified successfully!');
                 setIsLogin(true);
             } else {
-                // في حالة Forgot Password نحفظ الـ OTP لنرسله مع الباسورد الجديد
+                //  save OTP to send NewPassword
                 setTempOtp(otpCode);
                 setIsOtpOpen(false);
                 setIsResetPassOpen(true);
@@ -152,133 +151,133 @@ const AuthForm = () => {
     };
 
     return (
-        <>
-            <div className="auth-container">
-                <div className="auth-card">
-                    <h2>{isLogin ? 'Login' : 'Sign UP'}</h2>
-                    <p className="subtitle">
-                        {isLogin
-                            ? 'Welcome back !Please enter your details to login'
-                            : 'Create your account to get started'}
-                    </p>
 
-                    <form onSubmit={handleSubmit} noValidate>
-                        {!isLogin && (
-                            <div className="form-group">
-                                <label>Full Name</label>
-                                <input
-                                    type="text"
-                                    name="fullName"
-                                    placeholder="Enter your full name"
-                                    value={formData.fullName}
-                                    onChange={handleChange}
-                                    className={errors.fullName ? 'input-error' : ''}
-                                />
-                                {errors.fullName && <span className="error-message">{errors.fullName}</span>}
-                            </div>
-                        )}
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>{isLogin ? 'Login' : 'Sign UP'}</h2>
+                <p className="subtitle">
+                    {isLogin
+                        ? 'Welcome back !Please enter your details to login'
+                        : 'Create your account to get started'}
+                </p>
 
+                <form onSubmit={handleSubmit} noValidate>
+                    {!isLogin && (
                         <div className="form-group">
-                            <label>Email</label>
+                            <label>Full Name</label>
                             <input
-                                type="email"
-                                name="email"
-                                placeholder="name@example.com"
-                                value={formData.email}
+                                type="text"
+                                name="fullName"
+                                placeholder="Enter your full name"
+                                value={formData.fullName}
                                 onChange={handleChange}
-                                className={errors.email ? 'input-error' : ''}
+                                className={errors.fullName ? 'input-error' : ''}
                             />
-                            {errors.email && <span className="error-message">{errors.email}</span>}
+                            {errors.fullName && <span className="error-message">{errors.fullName}</span>}
                         </div>
+                    )}
 
-                        {!isLogin && (
-                            <div className="form-group">
-                                <label>Phone Number</label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    placeholder="01xxxxxxxxx"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className={errors.phone ? 'input-error' : ''}
-                                />
-                                {errors.phone && <span className="error-message">{errors.phone}</span>}
-                            </div>
-                        )}
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="name@example.com"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className={errors.email ? 'input-error' : ''}
+                        />
+                        {errors.email && <span className="error-message">{errors.email}</span>}
+                    </div>
 
+                    {!isLogin && (
                         <div className="form-group">
-                            <div className="label-wrapper">
-                                <label>Password</label>
-                                {isLogin && (
-                                    <span className="forgot-pass" onClick={handleForgotPasswordClick}>
-                                        Forgot Password?
-                                    </span>
-                                )}
-                            </div>
+                            <label>Phone Number</label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                placeholder="01xxxxxxxxx"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                className={errors.phone ? 'input-error' : ''}
+                            />
+                            {errors.phone && <span className="error-message">{errors.phone}</span>}
+                        </div>
+                    )}
+
+                    <div className="form-group">
+                        <div className="label-wrapper">
+                            <label>Password</label>
+                            {isLogin && (
+                                <span className="forgot-pass" onClick={handleForgotPasswordClick}>
+                                    Forgot Password?
+                                </span>
+                            )}
+                        </div>
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="••••••••"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className={errors.password ? 'input-error' : ''}
+                        />
+                        {errors.password && <span className="error-message">{errors.password}</span>}
+                    </div>
+
+                    {!isLogin && (
+                        <div className="form-group">
+                            <label>Confirm Password</label>
                             <input
                                 type="password"
-                                name="password"
+                                name="confirmPassword"
                                 placeholder="••••••••"
-                                value={formData.password}
+                                value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className={errors.password ? 'input-error' : ''}
+                                className={errors.confirmPassword ? 'input-error' : ''}
                             />
-                            {errors.password && <span className="error-message">{errors.password}</span>}
+                            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
                         </div>
-
-                        {!isLogin && (
-                            <div className="form-group">
-                                <label>Confirm Password</label>
-                                <input
-                                    type="password"
-                                    name="confirmPassword"
-                                    placeholder="••••••••"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    className={errors.confirmPassword ? 'input-error' : ''}
-                                />
-                                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-                            </div>
-                        )}
+                    )}
 
 
 
-                        <button type="submit" className="submit-btn" disabled={loading}>
-                            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
-                        </button>
-                    </form>
+                    <button type="submit" className="submit-btn" disabled={loading}>
+                        {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+                    </button>
+                </form>
 
-                    <div className="toggle-text">
-                        {isLogin ? (
-                            <p>
-                                Don't have an account?{' '}
-                                <span onClick={() => { setIsLogin(false); setErrors({}); }}>Sign Up</span>
-                            </p>
-                        ) : (
-                            <p>
-                                Already have an account?{' '}
-                                <span onClick={() => { setIsLogin(true); setErrors({}); }}>Login</span>
-                            </p>
-                        )}
-                    </div>
+                <div className="toggle-text">
+                    {isLogin ? (
+                        <p>
+                            Don't have an account?{' '}
+                            <span onClick={() => { setIsLogin(false); setErrors({}); }}>Sign Up</span>
+                        </p>
+                    ) : (
+                        <p>
+                            Already have an account?{' '}
+                            <span onClick={() => { setIsLogin(true); setErrors({}); }}>Login</span>
+                        </p>
+                    )}
                 </div>
-
-                <OtpModal
-                    isOpen={isOtpOpen}
-                    email={formData.email}
-                    onClose={() => setIsOtpOpen(false)}
-                    onVerify={handleVerifyOtpSubmit}
-                    onResend={handleResendOtpCall}
-                />
-
-                <ResetPasswordModal
-                    isOpen={isResetPassOpen}
-                    email={formData.email}
-                    onClose={() => setIsResetPassOpen(false)}
-                    onSubmitNewPassword={handleResetPasswordSubmit}
-                />
             </div>
-        </>
+
+            <OtpModal
+                isOpen={isOtpOpen}
+                email={formData.email}
+                onClose={() => setIsOtpOpen(false)}
+                onVerify={handleVerifyOtpSubmit}
+                onResend={handleResendOtpCall}
+            />
+
+            <ResetPasswordModal
+                isOpen={isResetPassOpen}
+                email={formData.email}
+                onClose={() => setIsResetPassOpen(false)}
+                onSubmitNewPassword={handleResetPasswordSubmit}
+            />
+        </div>
+
     );
 };
 

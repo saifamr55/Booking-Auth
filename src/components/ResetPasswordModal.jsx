@@ -6,7 +6,7 @@ const ResetPasswordModal = ({ isOpen, email, onClose, onSubmitNewPassword }) => 
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errors, setErrors] = useState({});
 
-    // إعادة ضبط المدخلات والأخطاء عند الفتح 
+    //Reset inputs and errors upon opening
     useEffect(() => {
         if (isOpen) {
             setNewPassword('');
@@ -46,54 +46,54 @@ const ResetPasswordModal = ({ isOpen, email, onClose, onSubmitNewPassword }) => 
     };
 
     return (
-        <>
-            <div className="modal-overlay">
-                <div className="modal-card">
-                    <h3>Reset Password</h3>
-                    <p>Enter a new password for <strong>{email}</strong></p>
 
-                    <form onSubmit={handleSubmit} noValidate>
-                        <div className="form-group" style={{ textAlign: 'left', marginBottom: '15px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: 'bold' }}>New Password</label>
-                            <input
-                                type="password"
-                                placeholder="Enter new password"
-                                value={newPassword}
-                                onChange={(e) => {
-                                    setNewPassword(e.target.value);
-                                    if (errors.newPassword) setErrors({ ...errors, newPassword: '' });
-                                }}
-                                className={errors.newPassword ? 'input-error' : ''}
-                                style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #ccc' }}
-                            />
-                            {errors.newPassword && <span className="error-message">{errors.newPassword}</span>}
-                        </div>
+        <div className="modal-overlay">
+            <div className="modal-card">
+                <h3>Reset Password</h3>
+                <p>Enter a new password for <strong>{email}</strong></p>
 
-                        <div className="form-group" style={{ textAlign: 'left', marginBottom: '20px' }}>
-                            <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Confirm New Password</label>
-                            <input
-                                type="password"
-                                placeholder="Confirm new password"
-                                value={confirmPassword}
-                                onChange={(e) => {
-                                    setConfirmPassword(e.target.value);
-                                    if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
-                                }}
-                                className={errors.confirmPassword ? 'input-error' : ''}
-                                style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #ccc' }}
-                            />
-                            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-                        </div>
-
-                        <button type="submit" className="verify-btn">Reset Password</button>
-                    </form>
-
-                    <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '15px' }}>
-                        <button type="button" className="close-btn" onClick={onClose}>Cancel</button>
+                <form onSubmit={handleSubmit} noValidate>
+                    <div className="form-group" style={{ textAlign: 'left', marginBottom: '15px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold' }}>New Password</label>
+                        <input
+                            type="password"
+                            placeholder="Enter new password"
+                            value={newPassword}
+                            onChange={(e) => {
+                                setNewPassword(e.target.value);
+                                if (errors.newPassword) setErrors({ ...errors, newPassword: '' });
+                            }}
+                            className={errors.newPassword ? 'input-error' : ''}
+                            style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #ccc' }}
+                        />
+                        {errors.newPassword && <span className="error-message">{errors.newPassword}</span>}
                     </div>
+
+                    <div className="form-group" style={{ textAlign: 'left', marginBottom: '20px' }}>
+                        <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Confirm New Password</label>
+                        <input
+                            type="password"
+                            placeholder="Confirm new password"
+                            value={confirmPassword}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: '' });
+                            }}
+                            className={errors.confirmPassword ? 'input-error' : ''}
+                            style={{ width: '100%', padding: '10px', marginTop: '5px', borderRadius: '6px', border: '1px solid #ccc' }}
+                        />
+                        {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+                    </div>
+
+                    <button type="submit" className="verify-btn">Reset Password</button>
+                </form>
+
+                <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '15px' }}>
+                    <button type="button" className="close-btn" onClick={onClose}>Cancel</button>
                 </div>
             </div>
-        </>
+        </div>
+
     );
 };
 
